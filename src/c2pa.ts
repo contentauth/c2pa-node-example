@@ -4,8 +4,8 @@ import fs from "fs/promises";
 const signer = await createTestSigner();
 const sdk = createC2pa({ signer });
 
-export async function signAssetBuffer() {
-  const imageBuffer = await fs.readFile("./JWST.png");
+export async function signAssetBuffer(filename: string) {
+  const imageBuffer = await fs.readFile("./uploaded_assets/" + filename);
 
   const { signedAsset } = await sdk.sign({
     asset: { buffer: imageBuffer, mimeType: "image/png" },
