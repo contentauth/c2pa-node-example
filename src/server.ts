@@ -32,14 +32,13 @@ app.use('/assets',
 const storage = multer.memoryStorage()
 var upload = multer({ storage: storage })
 
-// The /upload endpoint signs a file and then uploads it using Multer Express middleware 
+// The /upload endpoint uploads the file using Multer Express middleware, signs it, and then saves it on the server 
 app.post('/upload', 
   upload.single('file'), 
   async (req, res, next) => {
     console.log(req.file, req.body)
-    if (req.file) {
 
-      console.log("MIME TYPE in server.ts ", req.file.mimetype);
+    if (req.file) {
       const signedAsset = await signAssetBuffer(req.file.buffer, req.file.mimetype);
       res.set("Content-Type", signedAsset.mimeType);
       res.send(signedAsset.buffer);
