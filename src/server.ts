@@ -3,6 +3,7 @@ import path from "path";
 import serveIndex from 'serve-index';
 import multer from 'multer';
 import cors from "cors";
+import fs from 'fs/promises';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -21,39 +22,32 @@ app.get("/", async (req, res) => {
   res.sendFile(path.resolve(fileURLToPath(import.meta.url), "../index.html"));
 });
 
-// Sign and serve the asset
-app.get("/sign", async (req, res) => {
-  const signedAsset = await signAssetBuffer("JWST.png");
-  res.set("Content-Type", signedAsset.mimeType);
-  res.send(signedAsset.buffer);
-});
-
 // Serve the listing of uploaded assets
 app.use('/assets', 
   express.static('uploaded_assets'), 
   serveIndex('uploaded_assets', {'icons': true})
 )
 
-// Settings for Multer Express middleware: Save uploaded images to /uploaded_assets
-// With file name as current date and time and original file extension
-const storage = multer.diskStorage({
-  // Destination to store image     
-  destination: 'uploaded_assets/', 
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname))
-  }
-});
+// Use Multer Express middleware with memory storage to put image in buffer 
+const storage = multer.memoryStorage()
 var upload = multer({ storage: storage })
 
-// Upload endpoint for Multer Express middleware
+// The /upload endpoint signs a file and then uploads it using Multer Express middleware 
 app.post('/upload', 
   upload.single('file'), 
   async (req, res, next) => {
     console.log(req.file, req.body)
     if (req.file) {
-      const signedAsset = await signAssetBuffer(req.file.filename);
+
+      console.log("MIME TYPE in server.ts ", req.file.mimetype);
+      const signedAsset = await signAssetBuffer(req.file.buffer, req.file.mimetype);
       res.set("Content-Type", signedAsset.mimeType);
       res.send(signedAsset.buffer);
+
+      // Save the file to the uploaded_assets directory
+      // With file name as current date and time and file extension based on MIME type
+      const fileExtension = req.file.mimetype.split("/")[1];
+      await fs.writeFile(`uploaded_assets/${Date.now()}.${fileExtension}`, signedAsset.buffer);
     }
 })
 

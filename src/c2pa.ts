@@ -4,11 +4,9 @@ import fs from "fs/promises";
 const signer = await createTestSigner();
 const sdk = createC2pa({ signer });
 
-export async function signAssetBuffer(filename: string) {
-  const imageBuffer = await fs.readFile("./uploaded_assets/" + filename);
-
+export async function signAssetBuffer(imageBuffer: Buffer, mimeType: string) {
   const { signedAsset } = await sdk.sign({
-    asset: { buffer: imageBuffer, mimeType: "image/png" },
+    asset: { buffer: imageBuffer, mimeType},
     manifest: getManifest(),
   });
 
