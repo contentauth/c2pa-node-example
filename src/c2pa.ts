@@ -1,25 +1,79 @@
 import { ManifestBuilder, createC2pa, createTestSigner } from "c2pa-node";
 import fs from "fs/promises";
+import path from "path";
+import { resolve } from 'node:path';
 
 const signer = await createTestSigner();
 const sdk = createC2pa({ signer });
 
-export async function signAssetBuffer(imageBuffer: Buffer, mimeType: string) {
-  const { signedAsset } = await sdk.sign({
-    asset: { buffer: imageBuffer, mimeType},
-    manifest: getManifest(),
-  });
+async function readJsonFile(filePath: string): Promise<any> {
+  try {
+    const fileContent = await fs.readFile(filePath, "utf-8");
+    const jsonObj = JSON.parse(fileContent);
+    return jsonObj;
 
-  return signedAsset;
-}
+  } catch (error) {
+    console.error(`Error reading JSON file: ${error}`);
+    throw error;
+  }
+} //readJsonFile
 
-function getManifest() {
-  const manifest = new ManifestBuilder({
-    claim_generator: "c2pa-node-example",
-    title: "JWST.png",
-    format: "image/png",
-    assertions: [],
-  });
+/* 
+  Sign an asset buffer with a manifest.
+   uploadedFile arg is the req.file object from Express.
+*/
+export async function signAssetBuffer( uploadedFile: any, manifestFilePath: string) { 
+  const imageBuffer = uploadedFile.buffer;
+  const mimeType = uploadedFile.mimetype;
 
-  return manifest;
-}
+  try {
+    const manifestObject = await readJsonFile( path.resolve(manifestFilePath) );
+    manifestObject.title = uploadedFile.originalname;
+    console.log(manifestObject);
+    // Sign the asset with the manifest and return the signed asset
+    const { signedAsset } = await sdk.sign({
+      asset: { buffer: uploadedFile.buffer, mimeType },
+      manifest: new ManifestBuilder( manifestObject ) 
+    });
+    return signedAsset;
+
+  } catch (error) {
+    console.error(`Error reading JSON file: ${error}`);
+    throw error;
+  }
+
+} // signAssetBuffer
+
+// Sign a file with a manifest
+export async function signFile(assetPath: string, manifestFilePath: string) {
+  const asset = {
+    path: resolve(assetPath),
+  };
+
+  try {
+    const sArray = asset.path.split(".");
+    const fileExtension = sArray[sArray.length - 1];
+    const baseFileName = sArray[sArray.length - 2];
+    const outputPath = `${baseFileName}_signed.${fileExtension}`;
+
+    console.log(`Unsigned asset path is ${asset.path}`)
+    console.log(`Signed asset path is ${outputPath}`)
+
+    const manifestObject = await readJsonFile( path.resolve(manifestFilePath) );
+    manifestObject.title = "Node.js Example test file signing";
+    console.log(manifestObject);
+    const manifest = new ManifestBuilder( manifestObject );
+
+    const { signedAsset, signedManifest } = await sdk.sign({
+      manifest,
+      asset,
+      options: {
+        outputPath,
+      },
+    });
+
+  } catch (error) {
+    console.error(`ERROR: ${error}`);
+    throw error;
+  }
+} // signFile
