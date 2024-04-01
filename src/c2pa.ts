@@ -1,6 +1,5 @@
 import { ManifestBuilder, createC2pa, createTestSigner } from "c2pa-node";
 import fs from "fs/promises";
-import path from "path";
 import { resolve } from 'node:path';
 
 const signer = await createTestSigner();
@@ -27,7 +26,7 @@ export async function signAssetBuffer( uploadedFile: any, manifestFilePath: stri
   const mimeType = uploadedFile.mimetype;
 
   try {
-    const manifestObject = await readJsonFile( path.resolve(manifestFilePath) );
+    const manifestObject = await readJsonFile( resolve(manifestFilePath) );
     manifestObject.title = uploadedFile.originalname;
     console.log(manifestObject);
     // Sign the asset with the manifest and return the signed asset
@@ -59,7 +58,7 @@ export async function signFile(assetPath: string, manifestFilePath: string) {
     console.log(`Unsigned asset path is ${asset.path}`)
     console.log(`Signed asset path is ${outputPath}`)
 
-    const manifestObject = await readJsonFile( path.resolve(manifestFilePath) );
+    const manifestObject = await readJsonFile( resolve(manifestFilePath) );
     manifestObject.title = "Node.js Example test file signing";
     console.log(manifestObject);
     const manifest = new ManifestBuilder( manifestObject );
