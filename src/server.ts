@@ -43,16 +43,16 @@ app.post('/upload',
       // Save the signed file to the uploaded_assets directory
       // With file name of original file name plus current date and time (for uniqueness) and extension based on MIME type
       const signedAsset = await signAssetBuffer(req.file, manifestFile); 
-      await fs.writeFile(`${uploadDir}/${originalBaseFileName}_${Date.now()}.${fileExtension}`, signedAsset.buffer);
-
-      res.set("Content-Type", signedAsset.mimeType);
-      res.send(signedAsset.buffer);
       
-      // res.format({'text/html': function(){
-      //   res.send(`<h1>IMAGE</h1><img src="${uploadDir}/${originalBaseFileName}_${Date.now()}.${fileExtension}">`);
-      //   }
-      // })
+      if (signedAsset) {
+        await fs.writeFile(`${uploadDir}/${originalBaseFileName}_${Date.now()}.${fileExtension}`, signedAsset.buffer);
+        res.set("Content-Type", signedAsset.mimeType);
+        res.send(signedAsset.buffer);
 
+      } else {
+        res.send("Error signing asset buffer");
+        console.log("signedAsset is null");
+      }
     }
 })
 
@@ -80,7 +80,6 @@ app.post('/upload_file_sign',
       res.send(req.file.buffer);
     }
 })
-
 
 // Serve the listing of uploaded assets
 app.use('/assets', 

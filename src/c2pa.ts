@@ -6,15 +6,9 @@ const signer = await createTestSigner();
 const sdk = createC2pa({ signer });
 
 async function readJsonFile(filePath: string): Promise<any> {
-  try {
-    const fileContent = await fs.readFile(filePath, "utf-8");
-    const jsonObj = JSON.parse(fileContent);
-    return jsonObj;
-
-  } catch (error) {
-    console.error(`Error reading JSON file: ${error}`);
-    throw error;
-  }
+  const fileContent = await fs.readFile(filePath, "utf-8");
+  const jsonObj = JSON.parse(fileContent);
+  return jsonObj;
 } //readJsonFile
 
 /* 
@@ -38,7 +32,7 @@ export async function signAssetBuffer( uploadedFile: any, manifestFilePath: stri
 
   } catch (error) {
     console.error(`Error reading JSON file: ${error}`);
-    throw error;
+    return null;
   }
 
 } // signAssetBuffer
