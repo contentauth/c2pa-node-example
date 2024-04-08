@@ -6,7 +6,7 @@
   <body>
 
     <h2>Sign buffer THEN save file</h2>
-    <p>This saves the file after attaching the manifest and signing with the test cert.  Thus, there is only one file saved in the <code>uploaded_images</code> directory. </p>
+    <p>This saves the file after attaching the manifest and signing with the test cert.  Thus, there is only one file saved in the <code>uploaded_images</code> directory. Calls route <code>/upload</code>.</p>
     <form action="/upload" method="post" enctype="multipart/form-data" target="image_view">
       <div>
           <label for="file">Choose a file:</label>
@@ -20,7 +20,7 @@
     <hr width="75%"/>
 
     <h2>Upload THEN sign file</h2>
-    <p>This uploads the file, then attaches a manifest and signs it with the test cert., saving that file, too.  Thus, for each file uploaded there are two files saved in the <code>uploaded_images</code> directory: one unsigned and one signed. </p>
+    <p>This uploads the file, then attaches a manifest and signs it with the test cert., saving that file, too.  Thus, for each file uploaded there are two files saved in the <code>uploaded_images</code> directory: one unsigned and one signed. Calls route <code>/upload_file_sign</code>.</p>
     <form action="/upload_file_sign" method="post" enctype="multipart/form-data" target="image_view">
       <div>
           <label for="file">Choose a file:</label>
