@@ -29,14 +29,14 @@ app.get("/", async (req, res) => {
 const storage = multer.memoryStorage()
 var upload = multer({ storage: storage })
 
-app.post('/upload', 
-  upload.single('file'), 
+app.post('/upload',
+  upload.single('file'),
   async (req, res, next) => {
     //console.log(req.file, req.body)
 
     if (req.file) {
-      const signedAsset = await signAssetBuffer(req.file, manifestFile); 
-      
+      const signedAsset = await signAssetBuffer(req.file, manifestFile);
+
       if (signedAsset) {
         await fs.writeFile(`${uploadDir}/${Date.now()}_${req.file.originalname}`, signedAsset.buffer);
         res.set("Content-Type", signedAsset.mimeType);
@@ -47,7 +47,7 @@ app.post('/upload',
         console.log("signedAsset is null");
       }
     }
-})
+  })
 
 /* 
   Uploads the file using Multer Express middleware, then signs and saves a copy of the file.  NOTE: This results in two copies of the file on the server, one signed and one unsigned.
@@ -62,30 +62,32 @@ const fileStorage = multer.diskStorage({
 });
 const fileUpload = multer({ storage: fileStorage });
 
-app.post('/upload_file_sign', 
-  fileUpload.single('file'), 
+app.post('/upload_file_sign',
+  fileUpload.single('file'),
   async (req, res) => {
 
-  // Save the file to the uploaded_assets directory BEFORE signing
-  if (req.file) {
-    const signedAsset = await signFile(req.file, manifestFile); 
-    console.log(`req.file is ${req.file}`);
+    // Save the file to the uploaded_assets directory BEFORE signing
+    if (req.file) {
+      const signedAsset = await signFile(req.file, manifestFile);
+      console.log('signed', signedAsset);
 
-    if (signedAsset) {
-      res.set("Content-Type", signedAsset.mimeType);
-      res.send(signedAsset.buffer);
-  
-    } else {
-      res.send("Error signing asset buffer");
-      console.log("signedAsset is null");
+      if (signedAsset) {
+        const buffer = await fs.readFile(signedAsset.path);
+        res.set("Content-Type", signedAsset.mimeType);
+        console.log(signedAsset);
+        res.send(buffer);
+
+      } else {
+        res.send("Error signing asset buffer");
+        console.log("signedAsset is null");
+      }
     }
-  }
-});
+  });
 
 // Serve the listing of uploaded assets
-app.use('/assets', 
-  express.static(uploadDir),  
-  serveIndex(uploadDir, {'icons': true})
+app.use('/assets',
+  express.static(uploadDir),
+  serveIndex(uploadDir, { 'icons': true })
 )
 
 // Serve the app and listen on specified port

@@ -1,4 +1,4 @@
-import { ManifestBuilder, createC2pa, createTestSigner } from "c2pa-node";
+import { FileAsset, ManifestBuilder, createC2pa, createTestSigner } from "c2pa-node";
 import fs from "fs/promises";
 import { resolve } from 'node:path';
 
@@ -17,18 +17,18 @@ async function readJsonFile(filePath: string): Promise<any> {
    uploadedFile arg is the req.file object from Express.
    manifestFilePath is the path to the manifest file.
 */
-export async function signAssetBuffer( uploadedFile: any, manifestFilePath: string) { 
+export async function signAssetBuffer(uploadedFile: any, manifestFilePath: string) {
   const imageBuffer = uploadedFile.buffer;
   const mimeType = uploadedFile.mimetype;
 
   try {
-    const manifestObject = await readJsonFile( resolve(manifestFilePath) );
+    const manifestObject = await readJsonFile(resolve(manifestFilePath));
     manifestObject.title = uploadedFile.originalname;
     console.log(manifestObject);
     // Sign the asset with the manifest and return the signed asset
     const { signedAsset } = await sdk.sign({
       asset: { buffer: uploadedFile.buffer, mimeType },
-      manifest: new ManifestBuilder( manifestObject ) 
+      manifest: new ManifestBuilder(manifestObject)
     });
     return signedAsset;
 
@@ -44,25 +44,30 @@ export async function signAssetBuffer( uploadedFile: any, manifestFilePath: stri
    asset is req.file from Multer
    manifestFilePath is the path to the manifest file.
 */
-export async function signFile (asset: any, manifestFilePath: string) {
+export async function signFile(file: Express.Multer.File, manifestFilePath: string) {
   try {
-    if (asset) {
-      const uploadDir = "./uploaded_assets";
-      const outputPath = resolve(`${uploadDir}/signed_${asset.filename}`);
 
-      const manifestObject = await readJsonFile( resolve(manifestFilePath) );
-      manifestObject.title = "Node.js Example test file signing";
-      console.log(manifestObject);
-      const manifest = new ManifestBuilder( manifestObject );
+    const uploadDir = "./uploaded_assets";
+    const outputPath = resolve(`${uploadDir}/signed_${file.filename}`);
 
-      const { signedAsset, signedManifest } = await sdk.sign({
-        manifest,
-        asset,
-        options: {
-          outputPath,
-        },
-      });
-    } //if
+    const manifestObject = await readJsonFile(resolve(manifestFilePath));
+    manifestObject.title = "Node.js Example test file signing";
+    console.log(file);
+    const manifest = new ManifestBuilder(manifestObject);
+
+    const { signedAsset } = await sdk.sign({
+      manifest,
+      asset: {
+        path: file.path,
+        mimeType: file.mimetype
+      },
+      options: {
+        outputPath,
+      },
+    });
+
+    return signedAsset;
+
 
   } catch (error) {
     console.error(`ERROR: ${error}`);
