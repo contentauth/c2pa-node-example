@@ -32,7 +32,6 @@ var upload = multer({ storage: storage })
 app.post('/upload',
   upload.single('file'),
   async (req, res, next) => {
-    //console.log(req.file, req.body)
 
     if (req.file) {
       const signedAsset = await signAssetBuffer(req.file, manifestFile);
@@ -69,12 +68,10 @@ app.post('/upload_file_sign',
     // Save the file to the uploaded_assets directory BEFORE signing
     if (req.file) {
       const signedAsset = await signFile(req.file, manifestFile);
-      console.log('signed', signedAsset);
 
       if (signedAsset) {
         const buffer = await fs.readFile(signedAsset.path);
         res.set("Content-Type", signedAsset.mimeType);
-        console.log(signedAsset);
         res.send(buffer);
 
       } else {
@@ -92,6 +89,5 @@ app.use('/assets',
 
 // Serve the app and listen on specified port
 app.listen(PORT, () => {
-  //console.log(`Listening on port ${PORT}`);
   console.log(`Load in your browser: http://localhost:${PORT}`);
 });

@@ -24,7 +24,6 @@ export async function signAssetBuffer(uploadedFile: any, manifestFilePath: strin
   try {
     const manifestObject = await readJsonFile(resolve(manifestFilePath));
     manifestObject.title = uploadedFile.originalname;
-    console.log(manifestObject);
     // Sign the asset with the manifest and return the signed asset
     const { signedAsset } = await sdk.sign({
       asset: { buffer: uploadedFile.buffer, mimeType },
@@ -52,7 +51,6 @@ export async function signFile(file: Express.Multer.File, manifestFilePath: stri
 
     const manifestObject = await readJsonFile(resolve(manifestFilePath));
     manifestObject.title = "Node.js Example test file signing";
-    console.log(file);
     const manifest = new ManifestBuilder(manifestObject);
 
     const { signedAsset } = await sdk.sign({
