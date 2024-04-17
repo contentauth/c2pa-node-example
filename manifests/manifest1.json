@@ -1,0 +1,6 @@
+{
+  "claim_generator": "c2pa-node-example",
+  "title": "TEST TITLE",
+  "format": "image/png",
+  "assertions": []
+}
