@@ -1,4 +1,5 @@
 /node_modules
-/uploaded_assets
+/uploaded_assets/*
+!.gitkeep
 .vscode/
 .DS_Store
