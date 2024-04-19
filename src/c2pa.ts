@@ -64,8 +64,8 @@ export async function signFile(file: Express.Multer.File, manifestFilePath: stri
       },
     });
 
+    signedAsset.path = outputPath;
     return signedAsset;
-
 
   } catch (error) {
     console.error(`ERROR: ${error}`);

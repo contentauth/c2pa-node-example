@@ -10,55 +10,75 @@ NOTE: We may want to move to plain JavaScript to make it as accessible as possib
 
 Follow these steps:
 
-1. Install Node.js and npm from <https://nodejs.org/en/download>.
+1. Install Node.js and npm from <https://nodejs.org/en/download>.  **NOTE**: This app requires at least Node.js v20.x.
 1. Clone this repo by entering this command in a terminal window:
     ```
     git clone https://github.com/contentauth/c2pa-node-example.git
     ```
-1. Open a terminal window and install the required packages. Enter these commands
+1. Open a terminal window and install the required packages:
     ```
     cd <path_where_you_cloned_repo>/c2pa-node-example
     npm install
     ```
-1. Start the service by entering this command:
+1. Start the Node.js app by entering this command:
     ```
     npm start
     ```
     You'll see this in your terminal:
     ```
-    > c2pa_serve@0.1.0 start
-    > nodemon server.js
+    c2pa-node-example-v2@1.0.0 start
+    > node  --loader ts-node/esm src/server.ts
 
-    [nodemon] 2.0.21
-    [nodemon] to restart at any time, enter `rs`
-    [nodemon] watching path(s): *.*
-    [nodemon] watching extensions: js,mjs,json
-    [nodemon] starting `node server.js`
-    CAI HTTP server listening on port 8000.
+    ...
+
+    Load in your browser: http://localhost:3000
     ```
+
+NOTE: You can ignore the warning.
 
 ## Try the web app
 
-**NOTE: This is based on the old Node example and needs to be updated to reflect the new implementation.**
+1. Open a browser to <http://localhost:3000>.
+1. Click the first **Choose File** button and select one or more JPEG or PNG images in the native file chooser dialog. The app calls the `/upload` route, which:
+    - Uploads the selected image.
+    - While the image is in the memory buffer, attaches the manifest.
+    - Signs image in the buffer with the test certificate.
+    - Saves the buffer to a file in the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
+1. Click the second **Choose File** button and select one or more JPEG or PNG images in the native file chooser dialog. The app calls the `/upload_file_sign` route, which:
+    - Uploads the selected image and saves it to the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
+    - Attaches the manifest to the file.
+    - Signs the image with the test certificate.
+    - Saves the signed image to the `uploaded_images` directory,, prepending the original file name with `signed` and then a unique number derived from the current date/time; for example, `signed_1713507142037_foo.jpeg`.  
 
-1. Open a browser to <http://localhost:8000>.
-1. Click the **Choose Files** button and select one or more JPEG or PNG images in the native file chooser dialog. 
-    <br/>The service uploads the selected images, stores them in the `uploads` folder, and then calls the c2patool to add a C2PA manifest to each image. 
-3. Hover over the badge for information about the associated manifest.
-4. The service returns the full-sized image, not thumbnails.
-5. Right-click and download an image to view the credentials on <https://verify.contentauthenticity.org/>.
+## Overview of the app
 
-### Overview of the app
+The code in `server.ts` defines these routes using Express:
 
-The code in `server.js` contains all the server-side logic.  It defines these routes:
+GET `/`:
 
-- POST `/upload` uploads a file, adds a C2PA manifest, and returns a URL.
-- GET `/`, the default route, serves `client/index.html`, which is a simple page with a user interface you can use to upload one or more files.  The associated client JavaScript is in [`client/index.js`](https://github.com/contentauth/c2pa-node-example/blob/main/client/index.js).  Selecting files triggers a [client JavaScript event listener](https://github.com/contentauth/c2pa-node-example/blob/main/client/index.js#L89) that calls the `/upload` route for each file and then calls the [`addGalleryItem`](https://github.com/contentauth/c2pa-node-example/blob/main/client/index.js#L19) function to display the returned image on the page.
+- The default route, which serves `client/index.html`, the app's web page that can call the other routes via forms or links.
 
-## Customizing
+POST `/upload`:
 
-The data added to the manifest is determined by the `manifest.json` file in the root folder. To modify the information added to the file, modify `manifest.json`.
+- Uploads the selected image using `multer` middleware with `MemoryStorage` storage engine.
+- Attaches the manifest to the image in the memory buffer.
+- Signs the image in the buffer with the test certificate.
+- Saves the buffer to a file in the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
 
+POST `/upload_file_sign`:
+
+- Uploads the selected image using `multer` middleware with `DiskStorage` storage engine and saves it to the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
+- Attaches the manifest to the file.
+- Signs the image with the test certificate.
+- Saves the signed image to the `uploaded_images` directory,, prepending the original file name with `signed` and then a unique number derived from the current date/time; for example, `signed_1713507142037_foo.jpeg`.  
+
+GET `/assets`:
+
+- Serves a generic listing of all files in the `uploaded_assets` directory, using `serveIndex` middleware.
+
+## Manifest
+
+The manifest store file is `manifest1.json` in the `manifests` folder. 
 
 
 
