@@ -2,42 +2,71 @@
 <html>
   <head>
     <title>C2PA Node.js Example</title>
+    <style>
+    body {
+      font-family: Sans-Serif;
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+  /* Create two equal columns that floats next to each other */
+  .column {
+    float: left;
+    width: 50%;
+    padding: 10px;
+  }
+
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+    </style>
   </head>
+
   <body>
 
-    <h2>Sign buffer THEN save file</h2>
-    <p>This saves the file after attaching the manifest and signing with the test cert.  Thus, there is only one file saved in the <code>uploaded_images</code> directory. Calls route <code>/upload</code>.</p>
-    <form action="/upload" method="post" enctype="multipart/form-data" target="image_view">
-      <div>
-          <label for="file">Choose a file:</label>
-          <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png" required>
-      </div>
-      <div>
-          <button type="submit">Upload</button>
-      </div>
-    </form>
+    <div class="row">
 
-    <hr width="75%"/>
+      <div class="column" style="width: 35%; background-color:#e4e3e3; ">
+        <h2>Sign buffer then save file</h2>
+        <p>This calls route <code>/upload</code>, to attach the manifest to the image and sign with the test certificate, then save the file in the <code>uploaded_images</code> directory. <b>NOTE</b>: Only JPEG or PNG formats are supported.</p>
+        <form action="/upload" method="post" enctype="multipart/form-data" target="image_view">
+          <div>
+              <label for="file">Choose a JPEG or PNG file:</label>
+              <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png" required>
+          </div>
+          <div>
+              <button type="submit">Upload</button>
+          </div>
+        </form>
 
-    <h2>Upload THEN sign file</h2>
-    <p>This uploads the file, then attaches a manifest and signs it with the test cert., saving that file, too.  Thus, for each file uploaded there are two files saved in the <code>uploaded_images</code> directory: one unsigned and one signed. Calls route <code>/upload_file_sign</code>.</p>
-    <form action="/upload_file_sign" method="post" enctype="multipart/form-data" target="image_view">
-      <div>
-          <label for="file">Choose a file:</label>
-          <input type="file" id="file" name="file" required>
-      </div>
-      <div>
-          <button type="submit">Upload</button>
-      </div>
-    </form>
+        <hr />
 
-    <hr width="75%"/>
+      <h2>Upload then sign file</h2>
+      <p>This calls route <code>/upload_file_sign</code> to upload the file and save it. Then it attaches a manifest and signs it with the test certificate, saving that file, too.</p>
+      <p>Thus, for each file uploaded there are two files saved in the <code>uploaded_images</code> directory: one unsigned and one signed.</p>
+      <form action="/upload_file_sign" method="post" enctype="multipart/form-data" target="image_view">
+        <div>
+            <label for="file">Choose a file:</label>
+            <input type="file" id="file" name="file" required>
+        </div>
+        <div>
+            <button type="submit">Upload</button>
+        </div>
+      </form>
 
-    <h2><a href="/assets">See the uploaded images</a> </h2>
+      <hr />
 
-    <iframe name="image_view"
-    style="width:90%; height: 600px; border: 1px solid black;"
-    
-    ></iframe>
-  </body>
+      <h2><a href="/assets">See the uploaded images</a> </h2>
+    </div>
+
+  <div class="column" style="width: 65%; border: 1px solid #484747;">
+    <iframe name="image_view" style="width:100%; height: 700px; border: 0px;" ></iframe>
+  </div>
+
+  </div>
+</body>
 </html>

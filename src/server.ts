@@ -33,13 +33,17 @@ app.post('/upload',
   upload.single('file'),
   async (req, res, next) => {
 
+    console.log("Calling /upload route")
     if (req.file) {
       const signedAsset = await signAssetBuffer(req.file, manifestFile);
 
       if (signedAsset) {
-        await fs.writeFile(`${uploadDir}/${Date.now()}_${req.file.originalname}`, signedAsset.buffer);
+        const fileName = `${Date.now()}_${req.file.originalname}`;
+        await fs.writeFile(`${uploadDir}/${fileName}`, signedAsset.buffer);
         res.set("Content-Type", signedAsset.mimeType);
         res.send(signedAsset.buffer);
+
+        console.log(`Inspect signed asset at: https://contentcredentials.org/verify?source=http://localhost:${PORT}/assets/${fileName}`);
 
       } else {
         res.send("Error signing asset buffer");
@@ -56,7 +60,9 @@ const fileStorage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}_${file.originalname}`);
+    const fileName = `${Date.now()}_${file.originalname}`;
+    cb(null, `${fileName}`);
+    console.log(`Inspect UNSIGNED asset at: https://contentcredentials.org/verify?source=http://localhost:${PORT}/assets/${fileName}`);
   },
 });
 const fileUpload = multer({ storage: fileStorage });
@@ -65,9 +71,12 @@ app.post('/upload_file_sign',
   fileUpload.single('file'),
   async (req, res) => {
 
-    // Save the file to the uploaded_assets directory BEFORE signing
     if (req.file) {
       const signedAsset = await signFile(req.file, manifestFile);
+      console.log("Calling /upload_file_sign route")
+
+      const fileName = path.basename(signedAsset.path);
+      console.log(`Inspect signed asset at: https://contentcredentials.org/verify?source=http://localhost:${PORT}/assets/${fileName}`);
 
       if (signedAsset) {
         const buffer = await fs.readFile(signedAsset.path);
