@@ -6,6 +6,9 @@ const signer = await createTestSigner();
 const sdk = createC2pa({ signer });
 const uploadDir1 = "./uploaded_assets";
 
+/* 
+  Reads a JSON file and returns an object.  Used to read the manifest file.
+*/
 async function readJsonFile(filePath: string): Promise<any> {
   const fileContent = await fs.readFile(filePath, "utf-8");
   const jsonObj = JSON.parse(fileContent);
@@ -13,9 +16,9 @@ async function readJsonFile(filePath: string): Promise<any> {
 } //readJsonFile
 
 /* 
-  Sign an asset buffer with a manifest.
-   uploadedFile arg is the req.file object from Express.
-   manifestFilePath is the path to the manifest file.
+  Sign an asset buffer with a manifest. Arguments:
+  - uploadedFile: The req.file object from Express.
+  - manifestFilePath: The path to the manifest file.
 */
 export async function signAssetBuffer(uploadedFile: any, manifestFilePath: string) {
   const imageBuffer = uploadedFile.buffer;
@@ -39,9 +42,9 @@ export async function signAssetBuffer(uploadedFile: any, manifestFilePath: strin
 
 
 /* 
-  Sign a file with a manifest.
-   asset is req.file from Multer
-   manifestFilePath is the path to the manifest file.
+  Sign a file with a manifest. Arguments:
+  - file: The req.file from Multer
+  - manifestFilePath: The path to the manifest file.
 */
 export async function signFile(file: Express.Multer.File, manifestFilePath: string) {
   try {

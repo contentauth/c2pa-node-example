@@ -39,46 +39,45 @@ NOTE: You can ignore the warning.
 ## Try the web app
 
 1. Open a browser to <http://localhost:3000>.
-1. Click the first **Choose File** button and select one or more JPEG or PNG images in the native file chooser dialog. The app calls the `/upload` route, which:
-    - Uploads the selected image.
-    - While the image is in the memory buffer, attaches the manifest.
-    - Signs image in the buffer with the test certificate.
-    - Saves the buffer to a file in the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
-1. Click the second **Choose File** button and select one or more JPEG or PNG images in the native file chooser dialog. The app calls the `/upload_file_sign` route, which:
-    - Uploads the selected image and saves it to the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
-    - Attaches the manifest to the file.
-    - Signs the image with the test certificate.
-    - Saves the signed image to the `uploaded_images` directory,, prepending the original file name with `signed` and then a unique number derived from the current date/time; for example, `signed_1713507142037_foo.jpeg`.  
+1. Click the first **Choose File** button:
+    - Select a JPEG or PNG image file using the native file chooser dialog. 
+    - When you click **Upload**, the app calls the [`/upload` route](#post-upload), which  attaches the manifest and signs the file using the test certificate while the image is in memory, then saves the file with Content Credentials to the `uploaded_images` directory.
+1. Click the second **Choose File** button:
+    - Select an image file using the native file chooser dialog. 
+    - When you click **Upload**, the app calls the [`/upload_file_sign` route](#post-upload_file_sign), which uploads the selected image to the `uploaded_images` directory, attaches the manifest and signs the file using the test certificate, saving the signed file.  
+    - This results in two files: the original file without Content Credentials and the signed file with Content Credentials.
 
 ## Overview of the app
 
-The code in `server.ts` defines these routes using Express:
+The code in `server.ts` uses Express to define the routes described below.  It calls functions defined in `c2pa.ts` that use the C2PA Node library.
 
-GET `/`:
+### GET `/`
 
-- The default route, which serves `client/index.html`, the app's web page that can call the other routes via forms or links.
+The default route, which serves `client/index.html`, the app's web page that enables the user to call the other routes by submitting forms or clicking a link.
 
-POST `/upload`:
+### POST `/upload`
 
 - Uploads the selected image using `multer` middleware with `MemoryStorage` storage engine.
-- Attaches the manifest to the image in the memory buffer.
-- Signs the image in the buffer with the test certificate.
-- Saves the buffer to a file in the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
+- Calls `signAssetBuffer` to attach the manifest to the image in the memory buffer and then sign the image in the buffer with the test certificate.
+- Saves the buffer to a file in the `uploaded_images` directory, prepending the original file name with a unique number based on the current date/time; for example, `1713507142037_foo.jpeg`.
+- Displays in the console the URL to inspect the signed image using Verify.  
+- On Mac OS, Cmd-double-click to open the URL in your default browser.  Or copy/paste the URL into your browser location bar.
 
-POST `/upload_file_sign`:
+### POST `/upload_file_sign`
 
-- Uploads the selected image using `multer` middleware with `DiskStorage` storage engine and saves it to the `uploaded_images` directory, prepending the original file name with a unique number derived from the current date/time; for example, `1713507142037_foo.jpeg`.
-- Attaches the manifest to the file.
-- Signs the image with the test certificate.
-- Saves the signed image to the `uploaded_images` directory,, prepending the original file name with `signed` and then a unique number derived from the current date/time; for example, `signed_1713507142037_foo.jpeg`.  
+- Uploads the selected image using `multer` middleware with `DiskStorage` storage engine and saves it to the `uploaded_images` directory, prepending the original file name with a unique number based on the current date/time; for example, `1713507142037_foo.jpeg`.
+- Displays in the console the URL to inspect the unsigned image using Verify.
+- Calls `signFile` to attach the manifest to the file, sign the image with the test certificate, and save the signed image to the `uploaded_images` directory, prepending the original file name with `signed` and then a unique number based on the current date/time; for example, `signed_1713507142037_foo.jpeg`.
+- Displays in the console the URL to inspect the signed image using Verify.
+- On Mac OS, Cmd-double-click to open the URL in your default browser.  Or copy/paste the URL into your browser location bar.
 
-GET `/assets`:
+### GET `/assets`
 
-- Serves a generic listing of all files in the `uploaded_assets` directory, using `serveIndex` middleware.
+Serves a generic listing of all files in the `uploaded_assets` directory, using `serveIndex` middleware.
 
 ## Manifest
 
-The manifest store file is `manifest1.json` in the `manifests` folder. 
+The manifest store file is `manifest1.json` in the `manifests` folder.  Both routes attach this manifest to the uploaded asset before signing it with the test certificate.
 
 
 

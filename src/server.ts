@@ -71,10 +71,10 @@ app.post('/upload_file_sign',
   fileUpload.single('file'),
   async (req, res) => {
 
+    console.log("Calling /upload_file_sign route");
+
     if (req.file) {
       const signedAsset = await signFile(req.file, manifestFile);
-      console.log("Calling /upload_file_sign route")
-
       const fileName = path.basename(signedAsset.path);
       console.log(`Inspect signed asset at: https://contentcredentials.org/verify?source=http://localhost:${PORT}/assets/${fileName}`);
 
