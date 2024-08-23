@@ -51,7 +51,7 @@ NOTE: You can ignore the warning.
 
 The code in `server.ts` uses Express to define the routes described below.  It calls functions defined in `c2pa.ts` that use the C2PA Node library.
 
-**WARNING**: This application illustrates how to sign an asset using the Node library's built-in test certificate and key for demonstration purposes.  For a production application, you must purchase a valid security certificate and key and access them securely by using a hardware security module (HSM) and optionally a Key Management Service (KMS); for example as show in the [C2PA Python Example](https://github.com/contentauth/c2pa-python-example).
+**WARNING**: This application illustrates how to sign an asset using the Node library's built-in test certificate and key for demonstration purposes.  For a production application, you must purchase a valid security certificate and key; and best practice is to access them securely by using a hardware security module (HSM) or Key Management Service (KMS); for example as show in the [C2PA Python Example](https://github.com/contentauth/c2pa-python-example).
 
 ### GET `/`
 
